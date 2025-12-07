@@ -114,4 +114,99 @@
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
+
+  .corridor-3d {
+    perspective: 1200px;
+    perspective-origin: 50% 50%;
+  }
+
+  .corridor-wall {
+    background: linear-gradient(
+      to bottom,
+      hsl(30 15% 8%) 0%,
+      hsl(30 18% 12%) 20%,
+      hsl(30 20% 15%) 50%,
+      hsl(30 18% 12%) 80%,
+      hsl(30 15% 8%) 100%
+    );
+    position: relative;
+  }
+
+  .corridor-wall::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 100px,
+        rgba(212, 175, 55, 0.05) 100px,
+        rgba(212, 175, 55, 0.05) 101px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 150px,
+        rgba(212, 175, 55, 0.03) 150px,
+        rgba(212, 175, 55, 0.03) 151px
+      );
+    pointer-events: none;
+  }
+
+  .corridor-floor {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      hsl(30 25% 10% / 0.3) 40%,
+      hsl(30 25% 10% / 0.6) 70%,
+      hsl(30 25% 10% / 0.9) 100%
+    );
+  }
+
+  .exhibit-pedestal {
+    background: linear-gradient(
+      135deg,
+      hsl(30 20% 18%) 0%,
+      hsl(30 25% 22%) 50%,
+      hsl(30 20% 18%) 100%
+    );
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(212, 175, 55, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .exhibit-spotlight {
+    background: radial-gradient(
+      ellipse at center,
+      rgba(212, 175, 55, 0.15) 0%,
+      rgba(212, 175, 55, 0.05) 40%,
+      transparent 70%
+    );
+  }
+
+  .exhibit-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .exhibit-3d:hover {
+    transform: translateZ(30px) scale(1.05);
+  }
+
+  .depth-far {
+    filter: brightness(0.4) blur(2px);
+    opacity: 0.3;
+  }
+
+  .depth-mid {
+    filter: brightness(0.7) blur(0.5px);
+    opacity: 0.6;
+  }
+
+  .depth-near {
+    filter: brightness(1);
+    opacity: 1;
+  }
 }

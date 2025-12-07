@@ -190,90 +190,157 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v100H0z' fill='none'/%3E%3Cpath d='M0 50h100M50 0v100' stroke='%23D4AF37' stroke-width='0.5' opacity='0.3'/%3E%3C/svg%3E")`,
-            backgroundSize: '100px 100px'
-          }}
-        ></div>
+      <div className="flex-1 relative overflow-hidden corridor-wall">
+        <div className="corridor-floor absolute inset-0"></div>
+        
+        <div className="absolute inset-0 corridor-3d flex items-center justify-center">
+          <div className={`relative w-full h-full transition-all duration-700 ${isMoving ? 'opacity-80' : 'opacity-100'}`}>
+            <div className="absolute inset-0 flex items-end justify-center pb-32">
+              <svg className="w-full h-full absolute inset-0" style={{ pointerEvents: 'none' }}>
+                <defs>
+                  <linearGradient id="floorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: 'hsl(30 25% 10%)', stopOpacity: 0 }} />
+                    <stop offset="60%" style={{ stopColor: 'hsl(30 25% 10%)', stopOpacity: 0.3 }} />
+                    <stop offset="100%" style={{ stopColor: 'hsl(30 25% 8%)', stopOpacity: 0.6 }} />
+                  </linearGradient>
+                </defs>
+                <polygon 
+                  points="50,20 5,100 95,100" 
+                  fill="url(#floorGrad)" 
+                  opacity="0.3"
+                  vectorEffect="non-scaling-stroke"
+                  style={{ transform: 'scale(5)' }}
+                />
+              </svg>
 
-        <div className="relative w-full max-w-6xl">
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/50 rounded-full border border-primary/30">
-              <Icon name="Navigation" size={16} className="text-primary" />
-              <span className="text-sm text-muted-foreground">
-                Используйте кнопки для навигации по коридору
-              </span>
-            </div>
-          </div>
-
-          <div className="relative h-[500px] perspective-1000">
-            <div 
-              className={`absolute inset-0 flex items-center justify-center gap-8 transition-all duration-600 ${
-                isMoving ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
-              }`}
-            >
-              {leftExhibit && (
-                <Card 
-                  className="w-48 h-64 bg-card/40 medieval-border opacity-40 hover:opacity-60 transition-all cursor-pointer flex-shrink-0"
-                  onClick={moveBackward}
-                >
-                  <div className="h-full flex flex-col items-center justify-center p-4">
-                    <div className="text-5xl mb-2">{leftExhibit.image}</div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Предыдущий экспонат
-                    </p>
-                  </div>
-                </Card>
-              )}
-
-              <Card 
-                className="w-80 h-96 bg-card/90 medieval-border hover-glow cursor-pointer transform hover:scale-105 transition-all flex-shrink-0 animate-scale-in"
-                onClick={() => setSelectedExhibit(currentExhibit)}
-              >
-                <div className="h-full flex flex-col items-center justify-center p-6 relative">
-                  <div className="absolute top-4 right-4">
-                    <span className="px-2 py-1 bg-primary/20 text-primary text-xs font-display rounded">
-                      {currentExhibit.period}
-                    </span>
-                  </div>
-                  <div className="text-9xl mb-6">{currentExhibit.image}</div>
-                  <h3 className="text-2xl font-display font-bold text-center text-primary mb-2">
-                    {currentExhibit.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground text-center mb-4 line-clamp-3">
-                    {currentExhibit.description}
-                  </p>
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              <div className="relative z-10 w-full max-w-7xl mx-auto h-full flex items-center justify-center">
+                {position > 1 && exhibits[position - 2] && (
+                  <div 
+                    className="absolute depth-far"
+                    style={{
+                      left: '50%',
+                      top: '35%',
+                      transform: 'translateX(-50%) scale(0.3)',
+                    }}
                   >
-                    <Icon name="Eye" className="mr-2" size={14} />
-                    Подробнее
-                  </Button>
-                </div>
-              </Card>
-
-              {rightExhibit && (
-                <Card 
-                  className="w-48 h-64 bg-card/40 medieval-border opacity-40 hover:opacity-60 transition-all cursor-pointer flex-shrink-0"
-                  onClick={moveForward}
-                >
-                  <div className="h-full flex flex-col items-center justify-center p-4">
-                    <div className="text-5xl mb-2">{rightExhibit.image}</div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Следующий экспонат
-                    </p>
+                    <div className="relative">
+                      <div className="exhibit-spotlight absolute -inset-20 -top-32"></div>
+                      <div className="exhibit-pedestal w-32 h-40 rounded-lg flex flex-col items-center justify-center">
+                        <div className="text-6xl mb-1">{exhibits[position - 2].image}</div>
+                      </div>
+                    </div>
                   </div>
-                </Card>
-              )}
+                )}
+
+                {leftExhibit && (
+                  <div 
+                    className="absolute depth-mid cursor-pointer hover:brightness-110 transition-all"
+                    onClick={moveBackward}
+                    style={{
+                      left: '15%',
+                      top: '30%',
+                      transform: 'scale(0.5) rotateY(15deg)',
+                    }}
+                  >
+                    <div className="relative">
+                      <div className="exhibit-spotlight absolute -inset-24 -top-40"></div>
+                      <div className="exhibit-pedestal w-48 h-56 rounded-xl border border-primary/20 flex flex-col items-center justify-center gap-2">
+                        <div className="text-8xl">{leftExhibit.image}</div>
+                        <p className="text-xs text-primary/60 font-display">← Предыдущий</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div 
+                  className="relative depth-near cursor-pointer exhibit-3d"
+                  onClick={() => setSelectedExhibit(currentExhibit)}
+                  style={{
+                    transform: 'scale(1)',
+                  }}
+                >
+                  <div className="relative">
+                    <div className="exhibit-spotlight absolute -inset-32 -top-48 animate-pulse"></div>
+                    <div className="exhibit-pedestal w-80 h-96 rounded-2xl border-2 border-primary/40 shadow-2xl flex flex-col items-center justify-center gap-4 p-6 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+                      
+                      <div className="absolute top-4 right-4 px-3 py-1 bg-primary/30 backdrop-blur-sm text-primary text-xs font-display rounded-full border border-primary/50">
+                        {currentExhibit.period}
+                      </div>
+                      
+                      <div className="text-9xl drop-shadow-2xl transform hover:scale-110 transition-transform duration-300">
+                        {currentExhibit.image}
+                      </div>
+                      
+                      <div className="w-full px-4">
+                        <h3 className="text-3xl font-display font-bold text-center text-primary mb-3 drop-shadow-lg">
+                          {currentExhibit.title}
+                        </h3>
+                        
+                        <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-primary to-transparent mb-3"></div>
+                        
+                        <p className="text-sm text-muted-foreground text-center line-clamp-3 leading-relaxed">
+                          {currentExhibit.description}
+                        </p>
+                      </div>
+
+                      <Button 
+                        size="sm"
+                        className="bg-primary/20 hover:bg-primary text-primary hover:text-primary-foreground border border-primary/50 backdrop-blur-sm"
+                      >
+                        <Icon name="Eye" className="mr-2" size={14} />
+                        Рассмотреть
+                      </Button>
+                      
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {rightExhibit && (
+                  <div 
+                    className="absolute depth-mid cursor-pointer hover:brightness-110 transition-all"
+                    onClick={moveForward}
+                    style={{
+                      right: '15%',
+                      top: '30%',
+                      transform: 'scale(0.5) rotateY(-15deg)',
+                    }}
+                  >
+                    <div className="relative">
+                      <div className="exhibit-spotlight absolute -inset-24 -top-40"></div>
+                      <div className="exhibit-pedestal w-48 h-56 rounded-xl border border-primary/20 flex flex-col items-center justify-center gap-2">
+                        <div className="text-8xl">{rightExhibit.image}</div>
+                        <p className="text-xs text-primary/60 font-display">Следующий →</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {position < maxPosition - 1 && exhibits[position + 2] && (
+                  <div 
+                    className="absolute depth-far"
+                    style={{
+                      right: '50%',
+                      top: '35%',
+                      transform: 'translateX(50%) scale(0.3)',
+                    }}
+                  >
+                    <div className="relative">
+                      <div className="exhibit-spotlight absolute -inset-20 -top-32"></div>
+                      <div className="exhibit-pedestal w-32 h-40 rounded-lg flex flex-col items-center justify-center">
+                        <div className="text-6xl mb-1">{exhibits[position + 2].image}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center justify-center gap-4 mt-12">
+        <div className="absolute bottom-8 left-0 right-0 z-20">
+          <div className="flex items-center justify-center gap-4">
             <Button
               size="lg"
               variant="outline"
@@ -319,8 +386,9 @@ const Index = () => {
             </Button>
           </div>
 
-          <div className="text-center mt-6">
-            <p className="text-sm text-muted-foreground">
+          <div className="text-center mt-4">
+            <p className="text-xs text-muted-foreground/70 backdrop-blur-sm bg-background/30 inline-block px-4 py-2 rounded-full">
+              <Icon name="Hand" size={12} className="inline mr-1" />
               Нажмите на экспонат для подробной информации
             </p>
           </div>
