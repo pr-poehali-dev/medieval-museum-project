@@ -1,378 +1,318 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
-interface Artifact {
+interface Exhibit {
   id: number;
   title: string;
   period: string;
   description: string;
   image: string;
-}
-
-interface Event {
-  id: number;
-  title: string;
-  date: string;
-  description: string;
-  type: string;
-}
-
-interface TimelineEvent {
-  year: string;
-  title: string;
-  description: string;
+  position: number;
 }
 
 const Index = () => {
-  const [flippedCard, setFlippedCard] = useState<number | null>(null);
+  const [position, setPosition] = useState(0);
+  const [selectedExhibit, setSelectedExhibit] = useState<Exhibit | null>(null);
+  const [isMoving, setIsMoving] = useState(false);
 
-  const artifacts: Artifact[] = [
+  const exhibits: Exhibit[] = [
     {
       id: 1,
       title: "Рыцарский меч",
       period: "XIV век",
-      description: "Двуручный меч рыцаря-крестоносца. Длина клинка 110 см, вес 2.3 кг. Найден при раскопках замка в Германии.",
-      image: "⚔️"
+      description: "Двуручный меч рыцаря-крестоносца. Длина клинка 110 см, вес 2.3 кг. Найден при раскопках замка в Германии. Клинок украшен латинскими надписями и крестом.",
+      image: "⚔️",
+      position: 0
     },
     {
       id: 2,
       title: "Королевская корона",
       period: "XIII век",
-      description: "Церемониальная корона из золота с драгоценными камнями. Принадлежала династии Плантагенетов.",
-      image: "👑"
+      description: "Церемониальная корона из золота с драгоценными камнями. Принадлежала династии Плантагенетов. Украшена рубинами, изумрудами и сапфирами.",
+      image: "👑",
+      position: 1
     },
     {
       id: 3,
       title: "Рыцарские доспехи",
       period: "XV век",
-      description: "Полный комплект готических доспехов. Весят около 25 кг, изготовлены в Милане известным оружейником.",
-      image: "🛡️"
+      description: "Полный комплект готических доспехов. Весят около 25 кг, изготовлены в Милане известным оружейником. Принадлежали итальянскому кондотьеру.",
+      image: "🛡️",
+      position: 2
     },
     {
       id: 4,
       title: "Иллюминированная рукопись",
       period: "XII век",
-      description: "Религиозная книга с золотыми миниатюрами. Создана монахами в скриптории аббатства.",
-      image: "📜"
+      description: "Религиозная книга с золотыми миниатюрами. Создана монахами в скриптории аббатства. Содержит уникальные иллюстрации библейских сцен.",
+      image: "📜",
+      position: 3
     },
     {
       id: 5,
       title: "Рыцарский шлем",
       period: "XIV век",
-      description: "Закрытый шлем типа 'бацинет' с забралом. Отлично сохранившийся образец оружейного искусства.",
-      image: "⛑️"
+      description: "Закрытый шлем типа 'бацинет' с забралом. Отлично сохранившийся образец оружейного искусства. Имеет систему вентиляции и креплений.",
+      image: "⛑️",
+      position: 4
     },
     {
       id: 6,
       title: "Средневековый кубок",
       period: "XIII век",
-      description: "Серебряный кубок для пиров с гравировкой гербов. Использовался в замке английского барона.",
-      image: "🏆"
+      description: "Серебряный кубок для пиров с гравировкой гербов. Использовался в замке английского барона. Украшен сценами охоты и турниров.",
+      image: "🏆",
+      position: 5
+    },
+    {
+      id: 7,
+      title: "Боевой топор",
+      period: "XI век",
+      description: "Датский боевой топор викингов. Длина рукояти 120 см. Использовался воинами личной гвардии короля. Украшен скандинавскими рунами.",
+      image: "🪓",
+      position: 6
+    },
+    {
+      id: 8,
+      title: "Рыцарский щит",
+      period: "XIII век",
+      description: "Геральдический щит с гербом рода. Изготовлен из дерева, обтянут кожей и расписан. Использовался в крестовых походах.",
+      image: "🛡️",
+      position: 7
     }
   ];
 
-  const events: Event[] = [
-    {
-      id: 1,
-      title: "Рыцарский турнир",
-      date: "15 декабря 2025",
-      description: "Реконструкция рыцарского турнира с участием лучших команд страны",
-      type: "Мероприятие"
-    },
-    {
-      id: 2,
-      title: "Выставка 'Жизнь в замке'",
-      date: "Постоянная экспозиция",
-      description: "Уникальная коллекция предметов быта средневековых замков",
-      type: "Выставка"
-    },
-    {
-      id: 3,
-      title: "Лекция 'Крестовые походы'",
-      date: "20 декабря 2025",
-      description: "Известный историк расскажет о военных кампаниях эпохи",
-      type: "Лекция"
-    },
-    {
-      id: 4,
-      title: "Мастер-класс по каллиграфии",
-      date: "22 декабря 2025",
-      description: "Обучение средневековому искусству письма пером",
-      type: "Мастер-класс"
-    }
-  ];
+  const maxPosition = exhibits.length - 1;
 
-  const timeline: TimelineEvent[] = [
-    {
-      year: "476",
-      title: "Падение Западной Римской империи",
-      description: "Начало эпохи Средневековья в Европе"
-    },
-    {
-      year: "800",
-      title: "Коронация Карла Великого",
-      description: "Создание Священной Римской империи"
-    },
-    {
-      year: "1066",
-      title: "Битва при Гастингсе",
-      description: "Нормандское завоевание Англии"
-    },
-    {
-      year: "1095",
-      title: "Первый крестовый поход",
-      description: "Начало эпохи крестовых походов"
-    },
-    {
-      year: "1215",
-      title: "Великая хартия вольностей",
-      description: "Ограничение королевской власти в Англии"
-    },
-    {
-      year: "1337",
-      title: "Столетняя война",
-      description: "Конфликт между Англией и Францией"
-    },
-    {
-      year: "1453",
-      title: "Падение Константинополя",
-      description: "Конец Византийской империи и Средневековья"
+  const moveForward = () => {
+    if (position < maxPosition) {
+      setIsMoving(true);
+      setTimeout(() => {
+        setPosition(position + 1);
+        setIsMoving(false);
+      }, 600);
     }
-  ];
+  };
+
+  const moveBackward = () => {
+    if (position > 0) {
+      setIsMoving(true);
+      setTimeout(() => {
+        setPosition(position - 1);
+        setIsMoving(false);
+      }, 600);
+    }
+  };
+
+  const currentExhibit = exhibits[position];
+  const leftExhibit = position > 0 ? exhibits[position - 1] : null;
+  const rightExhibit = position < maxPosition ? exhibits[position + 1] : null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background"></div>
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b border-border/50 py-4 bg-card/30 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-3xl">🏰</div>
+              <div>
+                <h1 className="text-2xl font-display font-bold text-primary">
+                  Музей Средневековья
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Виртуальная экскурсия по коридору
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Icon name="MapPin" size={16} className="text-primary" />
+              <span className="text-muted-foreground">
+                Экспонат {position + 1} из {exhibits.length}
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden">
         <div 
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 opacity-10"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v100H0z' fill='none'/%3E%3Cpath d='M0 50h100M50 0v100' stroke='%23D4AF37' stroke-width='0.5' opacity='0.3'/%3E%3C/svg%3E")`,
+            backgroundSize: '100px 100px'
           }}
         ></div>
-        
-        <div className="relative z-10 text-center px-4 animate-fade-in">
-          <h1 className="text-6xl md:text-8xl font-display font-bold text-primary mb-6 tracking-wider">
-            МУЗЕЙ СРЕДНЕВЕКОВЬЯ
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Погрузитесь в эпоху рыцарей, замков и великих сражений
-          </p>
-          <Button 
-            size="lg" 
-            className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 medieval-border"
-          >
-            Начать экскурсию
-            <Icon name="ChevronRight" className="ml-2" />
-          </Button>
+
+        <div className="relative w-full max-w-6xl">
+          <div className="mb-8 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/50 rounded-full border border-primary/30">
+              <Icon name="Navigation" size={16} className="text-primary" />
+              <span className="text-sm text-muted-foreground">
+                Используйте кнопки для навигации по коридору
+              </span>
+            </div>
+          </div>
+
+          <div className="relative h-[500px] perspective-1000">
+            <div 
+              className={`absolute inset-0 flex items-center justify-center gap-8 transition-all duration-600 ${
+                isMoving ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+              }`}
+            >
+              {leftExhibit && (
+                <Card 
+                  className="w-48 h-64 bg-card/40 medieval-border opacity-40 hover:opacity-60 transition-all cursor-pointer flex-shrink-0"
+                  onClick={moveBackward}
+                >
+                  <div className="h-full flex flex-col items-center justify-center p-4">
+                    <div className="text-5xl mb-2">{leftExhibit.image}</div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Предыдущий экспонат
+                    </p>
+                  </div>
+                </Card>
+              )}
+
+              <Card 
+                className="w-80 h-96 bg-card/90 medieval-border hover-glow cursor-pointer transform hover:scale-105 transition-all flex-shrink-0 animate-scale-in"
+                onClick={() => setSelectedExhibit(currentExhibit)}
+              >
+                <div className="h-full flex flex-col items-center justify-center p-6 relative">
+                  <div className="absolute top-4 right-4">
+                    <span className="px-2 py-1 bg-primary/20 text-primary text-xs font-display rounded">
+                      {currentExhibit.period}
+                    </span>
+                  </div>
+                  <div className="text-9xl mb-6">{currentExhibit.image}</div>
+                  <h3 className="text-2xl font-display font-bold text-center text-primary mb-2">
+                    {currentExhibit.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground text-center mb-4 line-clamp-3">
+                    {currentExhibit.description}
+                  </p>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <Icon name="Eye" className="mr-2" size={14} />
+                    Подробнее
+                  </Button>
+                </div>
+              </Card>
+
+              {rightExhibit && (
+                <Card 
+                  className="w-48 h-64 bg-card/40 medieval-border opacity-40 hover:opacity-60 transition-all cursor-pointer flex-shrink-0"
+                  onClick={moveForward}
+                >
+                  <div className="h-full flex flex-col items-center justify-center p-4">
+                    <div className="text-5xl mb-2">{rightExhibit.image}</div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Следующий экспонат
+                    </p>
+                  </div>
+                </Card>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-4 mt-12">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={moveBackward}
+              disabled={position === 0 || isMoving}
+              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-30"
+            >
+              <Icon name="ChevronLeft" size={20} />
+              Назад
+            </Button>
+
+            <div className="flex gap-2">
+              {exhibits.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    if (!isMoving) {
+                      setIsMoving(true);
+                      setTimeout(() => {
+                        setPosition(idx);
+                        setIsMoving(false);
+                      }, 600);
+                    }
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    idx === position 
+                      ? 'bg-primary w-8' 
+                      : 'bg-primary/30 hover:bg-primary/50'
+                  }`}
+                  disabled={isMoving}
+                />
+              ))}
+            </div>
+
+            <Button
+              size="lg"
+              onClick={moveForward}
+              disabled={position === maxPosition || isMoving}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 medieval-border"
+            >
+              Вперёд
+              <Icon name="ChevronRight" size={20} />
+            </Button>
+          </div>
+
+          <div className="text-center mt-6">
+            <p className="text-sm text-muted-foreground">
+              Нажмите на экспонат для подробной информации
+            </p>
+          </div>
         </div>
-      </section>
-
-      <div className="container mx-auto px-4 py-16">
-        <Tabs defaultValue="history" className="w-full">
-          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-3 mb-12 h-auto bg-card/50 p-2">
-            <TabsTrigger 
-              value="history" 
-              className="text-lg font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3"
-            >
-              <Icon name="Book" className="mr-2" size={20} />
-              История
-            </TabsTrigger>
-            <TabsTrigger 
-              value="events" 
-              className="text-lg font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3"
-            >
-              <Icon name="Calendar" className="mr-2" size={20} />
-              События
-            </TabsTrigger>
-            <TabsTrigger 
-              value="artifacts" 
-              className="text-lg font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3"
-            >
-              <Icon name="Gem" className="mr-2" size={20} />
-              Артефакты
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="history" className="animate-fade-in">
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-4xl font-display font-bold text-center mb-4 text-primary">
-                Хронология Средневековья
-              </h2>
-              <p className="text-center text-muted-foreground mb-12 text-lg">
-                Тысяча лет европейской истории от падения Рима до эпохи Возрождения
-              </p>
-              
-              <div className="relative">
-                <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-primary/30 transform md:-translate-x-1/2"></div>
-                
-                {timeline.map((item, index) => (
-                  <div 
-                    key={index} 
-                    className={`relative mb-12 ${index % 2 === 0 ? 'md:pr-1/2' : 'md:pl-1/2 md:text-right'}`}
-                  >
-                    <div className={`flex items-center gap-4 ${index % 2 === 0 ? '' : 'md:flex-row-reverse'}`}>
-                      <div className="flex-1">
-                        <Card className="p-6 bg-card/80 medieval-border hover-glow">
-                          <div className="text-3xl font-display font-bold text-primary mb-2">
-                            {item.year}
-                          </div>
-                          <h3 className="text-xl font-display font-semibold mb-2">
-                            {item.title}
-                          </h3>
-                          <p className="text-muted-foreground">
-                            {item.description}
-                          </p>
-                        </Card>
-                      </div>
-                      
-                      <div className="w-4 h-4 rounded-full bg-primary border-4 border-background absolute left-6 md:left-1/2 transform md:-translate-x-1/2 shadow-lg shadow-primary/50"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="events" className="animate-fade-in">
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-4xl font-display font-bold text-center mb-4 text-primary">
-                Мероприятия и выставки
-              </h2>
-              <p className="text-center text-muted-foreground mb-12 text-lg">
-                Актуальные события в нашем музее
-              </p>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {events.map((event) => (
-                  <Card 
-                    key={event.id} 
-                    className="p-6 bg-card/80 medieval-border hover-glow cursor-pointer group"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <span className="px-3 py-1 bg-primary/20 text-primary text-sm font-display rounded-md">
-                        {event.type}
-                      </span>
-                      <Icon 
-                        name="Calendar" 
-                        className="text-primary group-hover:scale-110 transition-transform" 
-                        size={24} 
-                      />
-                    </div>
-                    <h3 className="text-2xl font-display font-bold mb-2 group-hover:text-primary transition-colors">
-                      {event.title}
-                    </h3>
-                    <p className="text-primary/80 font-semibold mb-3 flex items-center gap-2">
-                      <Icon name="Clock" size={16} />
-                      {event.date}
-                    </p>
-                    <p className="text-muted-foreground">
-                      {event.description}
-                    </p>
-                    <Button 
-                      variant="ghost" 
-                      className="mt-4 text-primary hover:text-primary hover:bg-primary/10"
-                    >
-                      Подробнее
-                      <Icon name="ArrowRight" className="ml-2" size={16} />
-                    </Button>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="artifacts" className="animate-fade-in">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-4xl font-display font-bold text-center mb-4 text-primary">
-                Коллекция артефактов
-              </h2>
-              <p className="text-center text-muted-foreground mb-12 text-lg">
-                Интерактивная 3D-коллекция экспонатов — наведите для просмотра
-              </p>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {artifacts.map((artifact) => (
-                  <div
-                    key={artifact.id}
-                    className="perspective-1000 h-80"
-                    onMouseEnter={() => setFlippedCard(artifact.id)}
-                    onMouseLeave={() => setFlippedCard(null)}
-                  >
-                    <div 
-                      className={`relative w-full h-full transition-transform duration-500 preserve-3d ${
-                        flippedCard === artifact.id ? 'rotate-y-180' : ''
-                      }`}
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        transform: flippedCard === artifact.id ? 'rotateY(180deg)' : 'rotateY(0deg)'
-                      }}
-                    >
-                      <Card 
-                        className="absolute inset-0 backface-hidden bg-card/90 medieval-border flex flex-col items-center justify-center p-6 cursor-pointer"
-                        style={{ backfaceVisibility: 'hidden' }}
-                      >
-                        <div className="text-8xl mb-4">{artifact.image}</div>
-                        <h3 className="text-2xl font-display font-bold text-center text-primary">
-                          {artifact.title}
-                        </h3>
-                        <p className="text-muted-foreground text-center mt-2 font-semibold">
-                          {artifact.period}
-                        </p>
-                        <div className="mt-4 text-sm text-primary/70 flex items-center gap-2">
-                          <Icon name="MousePointerClick" size={16} />
-                          Наведите для подробностей
-                        </div>
-                      </Card>
-                      
-                      <Card 
-                        className="absolute inset-0 backface-hidden bg-card/95 medieval-border p-6 cursor-pointer parchment-texture"
-                        style={{ 
-                          backfaceVisibility: 'hidden',
-                          transform: 'rotateY(180deg)'
-                        }}
-                      >
-                        <div className="h-full flex flex-col">
-                          <h3 className="text-xl font-display font-bold mb-2 text-primary">
-                            {artifact.title}
-                          </h3>
-                          <span className="text-sm text-primary/70 font-semibold mb-4 inline-block">
-                            {artifact.period}
-                          </span>
-                          <p className="text-foreground/90 flex-1 leading-relaxed">
-                            {artifact.description}
-                          </p>
-                          <Button 
-                            variant="outline" 
-                            className="mt-4 w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                          >
-                            <Icon name="Eye" className="mr-2" size={16} />
-                            Виртуальная экскурсия
-                          </Button>
-                        </div>
-                      </Card>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
 
-      <footer className="border-t border-border/50 mt-20 py-12 bg-card/30">
-        <div className="container mx-auto px-4 text-center">
-          <div className="text-6xl mb-4">🏰</div>
-          <h3 className="text-2xl font-display font-bold mb-2 text-primary">
-            Музей Средневековья
-          </h3>
-          <p className="text-muted-foreground mb-6">
-            Откройте для себя тысячу лет истории
-          </p>
-          <div className="flex justify-center gap-6 text-sm text-muted-foreground">
+      <Dialog open={!!selectedExhibit} onOpenChange={(open) => !open && setSelectedExhibit(null)}>
+        <DialogContent className="max-w-2xl bg-card medieval-border">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-display text-primary flex items-center gap-4">
+              <span className="text-6xl">{selectedExhibit?.image}</span>
+              <div>
+                <div>{selectedExhibit?.title}</div>
+                <div className="text-sm text-muted-foreground font-body mt-1">
+                  {selectedExhibit?.period}
+                </div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 parchment-texture p-6 rounded-lg">
+            <p className="text-foreground/90 leading-relaxed text-lg">
+              {selectedExhibit?.description}
+            </p>
+          </div>
+          <div className="mt-6 flex gap-3">
+            <Button 
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <Icon name="Volume2" className="mr-2" size={16} />
+              Аудиогид
+            </Button>
+            <Button 
+              variant="outline"
+              className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              <Icon name="Camera" className="mr-2" size={16} />
+              3D-модель
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <footer className="border-t border-border/50 py-6 bg-card/30 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center gap-8 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
               <Icon name="MapPin" size={16} />
               ул. Историческая, 1
